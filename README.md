@@ -1,5 +1,6 @@
 # radio_astronomy_tools
-A collection of scripts for reduction and imaging of radio astronomy data. These are designed for use in Python with the CASA packages https://casa.nrao.edu/
+A collection of scripts for reduction and imaging of radio astronomy data. These are designed for use in Python with the CASA packages https://casa.nrao.edu/.
+Everything is provided as-is, please e-mail alexander.akins@jpl.nasa.gov with any issues. 
 
 ## solar_system 
 
