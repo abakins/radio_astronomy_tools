@@ -4,6 +4,5 @@ Everything is provided as-is, please e-mail alexakins@gmail.com with any issues.
 
 ## solar_system 
 Utilities for solar system objects ([view the README](solar_system/README.md))
-- uvplanetfit: A routine for fitting limb-darkened disks to visibility samples
-- uvplanetfit_polarized: A routine for fitting polarized disk models to cross-polarized visibility samples 
-- uvpf_to_sm: Takes the results of uvplanetfit and generates an image which can be passed to tclean's "startmodel" (polarimetric mode in progress)
+- uvplanetfit.py: Routines for fitting co- and cross-polarized disk models to visibility samples
+- imagetools.py: Routines for analysis of planet images 

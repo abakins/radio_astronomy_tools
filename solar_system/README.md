@@ -1,7 +1,7 @@
 # Solar system object tools 
 
 ## uvplanetfit.py 
-uvplanetfit scripts serve as an alternative to the CASA task [uvmodelfit](https://casadocs.readthedocs.io/en/latest/api/tt/casatasks.manipulation.uvmodelfit.html) which is focused on models which are relevant to planets. Unlike uvmodelfit, however, it doesn't interface with CASA measurement sets directly, and instead requires extraction of the relevant data using ms.getdata. Examples for this process are shown below in demonstration scripts for each function. It also creates model images for tclean's startmodel parameter instead of CASA component lists. 
+uvplanetfit functions serve as alternatives to the CASA task [uvmodelfit](https://casadocs.readthedocs.io/en/latest/api/tt/casatasks.manipulation.uvmodelfit.html) which is focused on models which are relevant to planets. Unlike uvmodelfit, however, it doesn't interface with CASA measurement sets directly, and instead requires extraction of the relevant data using ms.getdata. Examples for this process are shown below in demonstration scripts for each function. It also creates model images for tclean's startmodel parameter instead of CASA component lists. 
 
 ### uvplanetfit
 In addition to generating a uniform disk model, uvplanetfit can also fit limb-darkening and ellipsoid shape models. This function can only be used for co-polarized visibilities.
@@ -123,3 +123,14 @@ This routine takes inputs of
 
 and generates a FITS image which can be imported as a CASA image and used with the tclean startmodel parameter. 
 It currently only works for the output of uvplanetfit (polarized output in progress)
+
+## imagetools.py 
+imagetools functions are applicable to analysis of planet images 
+Many of these routines return Astropy Quantities to aid with tracking units 
+
+### read_fits_image 
+Extracts coordinate systems and quantities of interest (synthesized beams, observation dates) for input FITS images. 
+
+### get_horizons_ephemerides
+Built on the astroquery.jplhorizons module, queries JPL Horizons service for object information. 
+Also computes the apparent disk dimensions from the observer's perspective assuming the body is an oblate spheroid. 
