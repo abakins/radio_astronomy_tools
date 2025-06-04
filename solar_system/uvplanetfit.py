@@ -221,7 +221,7 @@ def uvplanetfit(cvis, uwave, vwave, fit_params={'Io': 1., 'r': 1.}, static_param
 
     return all_params
 
-def uvplanetfit_polarized(cvis, uwave, vwave, fit_params={'eps': 1., 'r': 1.}, static_params={},
+def uvplanetfit_polarized(cvis, uwave, vwave, fit_params={'eps': 1., 'r': 1.}, static_params={}, fit_reals=False,
                           solmode='L2', solver_kwargs={}, compute_sigma=False, sigma_bin=101, 
                           make_plots=False, savefig='fit_result_xpol.png', feed_type=['LL', 'LR', 'RL', 'RR']): 
     """ uvplanetfit_polarized is the equivalent of uvplanetfit for cross-polarized measurements 
@@ -242,6 +242,8 @@ def uvplanetfit_polarized(cvis, uwave, vwave, fit_params={'eps': 1., 'r': 1.}, s
         :param vwave: Array of spatial frequencies along the V axis, in units of wavelengths 
         :param fit_params: See above 
         :param static_params: See above 
+        :param fit_reals: If True, fit to the real part of the visibility measurement 
+                            if False (default), fit to the visibility amplitudes 
         :param solmode: Cost function norm, either 'L2' (default) or 'L1'
         :param solver_kwargs: Dictionary of keyword arguments to pass to solver 
                               see scipy.optimize.minimize
@@ -289,7 +291,7 @@ def uvplanetfit_polarized(cvis, uwave, vwave, fit_params={'eps': 1., 'r': 1.}, s
         sigma = None 
 
     fit_keys = list(fit_params.keys())
-    args = (cvis, uwave, vwave, fit_keys, static_params, solmode, sigma, pol_type)
+    args = (cvis, uwave, vwave, fit_keys, static_params, fit_reals, solmode, sigma, pol_type)
     result = spo.minimize(fun=cost_function_polarized, x0=np.array(list(fit_params.values())), args=args, **solver_kwargs)
 
     all_params = static_params
@@ -307,7 +309,13 @@ def uvplanetfit_polarized(cvis, uwave, vwave, fit_params={'eps': 1., 'r': 1.}, s
         model_disk = disk_crosspol(all_params['r'], u_in, v_in, all_params['phi'], all_params['b'], np.real(all_params['eps']), np.imag(all_params['eps']))
         sub_disk = disk_crosspol(all_params['r'], uwave, vwave, all_params['phi'], all_params['b'], np.real(all_params['eps']), np.imag(all_params['eps']))
         
-        ylabel='Re(V) (Jy)'
+        if not fit_reals: 
+            visdata = abs(visdata)
+            model_disk = abs(model_disk)
+            sub_disk = abs(sub_disk) 
+            ylabel = 'Abs(V) (Jy)'
+        else: 
+            ylabel='Re(V) (Jy)'
 
         diff = visdata - sub_disk
 
@@ -379,7 +387,7 @@ def cost_function(params, visdata, uwave, vwave, fit_keys, static_params,
     if disp_iter: print(out)
     return out
 
-def cost_function_polarized(params, visdata, uwave, vwave, fit_keys, static_params, 
+def cost_function_polarized(params, visdata, uwave, vwave, fit_keys, static_params, fit_reals, 
                   solmode, sigma, pol_type, disp_iter=True): 
     """ Cost function to minimize for fitting disk to data, used in uvplanetfit_polarized
 
@@ -389,6 +397,7 @@ def cost_function_polarized(params, visdata, uwave, vwave, fit_keys, static_para
         :param vwave: V baselines
         :param fit_keys: Dictionary keys for fit_params, since minimize guesses aren't dictionaries 
         :param static_params: Dictionary of static parameters 
+        :param fit_reals: If True, visdata is reals, if False, visdata is amplitudes 
         :param solmode: Either 'L2' or 'L1'
         :param sigma: Standard deviation for the values of amp
         :param pol_type: Either 'linear' or 'circular' for get_pol_vis
@@ -403,6 +412,10 @@ def cost_function_polarized(params, visdata, uwave, vwave, fit_keys, static_para
     
     model_disk = disk_crosspol(all_params['r'], uwave, vwave, all_params['phi'], all_params['b'], 
                                 np.real(all_params['eps']), np.imag(all_params['eps']))
+    
+    if not fit_reals: 
+        Vp = abs(Vp)
+        model_disk = abs(model_disk) 
     
     if sigma is None: sigma = np.ones(model_disk.shape)
 
