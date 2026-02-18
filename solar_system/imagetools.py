@@ -161,6 +161,8 @@ def map_sky_projection(projcoord, ghe_dict):
         Returns: 
         Planetodetic longitude and latitude coordinates 
         Surface emission angle  
+
+        # Note, this function assumes a positive west longitude convention for prograde objects 
         
     """
     subobs_pc = (ghe_dict['subobserver_longitude_PC'], ghe_dict['subobserver_latitude_PC'])
@@ -318,10 +320,6 @@ def map_sky_projection_crs(projcoord, ghe_dict):
 
     
 
-
-
-
-
 def solve_image_center(image, model, wcs, synthesized_beam, manual_align=False): 
     """ Solves for image center based on comparison with a reference model and returns a centered image 
 
@@ -441,7 +439,7 @@ def brightness_temperature_stats(jy_beam_image, rfi_dict, ghe_dict, mask=None):
     tb_image = planck_function(frequency, (jy_beam_image / beam.sr).value) + 2.726
     beam_per_px = wcs.proj_plane_pixel_area().to(u.sr) / beam.sr
     jpp = jy_beam_image * beam_per_px
-    average_tb = planck_function(frequency, np.sum(jpp)) * km_dist**2 / (np.pi * smajor * sminor) + 2.726
+    average_tb = planck_function(frequency, np.sum(jpp)* km_dist**2 / (np.pi * smajor * sminor)) + 2.726
     return tb_image, average_tb
 
 def spatial_binning(image, wcs, synthesized_beam, msp_dict, bin_resolution=1, cutoff_angle=80.): 
@@ -1029,7 +1027,7 @@ def planck_function(freq, intens):
     """
     Bv = intens * 1e-26 
     log_arg = 2.0 * spc.h * freq**3. / (spc.c**2. * Bv) + 1.0 
-    T = (spc.h * freq / spc.k) * 1.0 / (np.log(log_arg))
+    T = spc.h * freq / spc.k / (np.log(log_arg))
     return T 
 
 def rj_function(freq, intens): 
@@ -1038,7 +1036,7 @@ def rj_function(freq, intens):
     """
     wave = spc.c / freq
     Bv = intens * 1e-26
-    T = Bv / 2 / spc.k / wave**2 
+    T = Bv / 2 / spc.k * wave**2 
     return T 
 
 def inv_planck_function(freq, T): 
@@ -1053,6 +1051,6 @@ def inv_rj_function(freq, T):
         T in Kelvins
     """
     wave = spc.c / freq
-    Bv = T * 2 * spc.k * wave**2 
+    Bv = T * 2 * spc.k / wave**2 
     return Bv * 1e26
 
