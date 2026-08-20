@@ -205,10 +205,11 @@ def map_sky_projection(
     mr = m * np.cos(rad_np_angle) - l * np.sin(rad_np_angle)
 
     phi0 = np.radians(sublat_c)
+    theta0 = np.radians(sublon_c)
     if rotation_sense == "prograde":
-        theta0 = np.radians(sublon_c)
+        use_theta0 = np.radians(sublon_c)
     elif rotation_sense == "retrograde":
-        theta0 = np.radians(-sublon_c)
+        use_theta0 = np.radians(-sublon_c)
     else:
         raise ValueError("Invalid rotation sense provided")
 
@@ -236,7 +237,7 @@ def map_sky_projection(
     n = np.real(n)
 
     # Alternate to Eq. 31-12 - 31-14 in BB99
-    rotation = spice.rotate(theta0, 2) @ spice.rotate(phi0, 1)
+    rotation = spice.rotate(use_theta0, 2) @ spice.rotate(phi0, 1)
     lmn = np.stack([lr, mr, n])
     lpmpnp = np.einsum("ij,j...->i...", rotation, lmn)
     lp = lpmpnp[0]
@@ -303,7 +304,7 @@ def map_sky_projection(
 
     cos_emang = np.sin(phi0_pd) * np.sin(pd_grid_lats) + np.cos(phi0_pd) * np.cos(
         pd_grid_lats
-    ) * np.cos(pd_grid_lons - theta0)
+    ) * np.cos(pd_grid_lons - theta0_pd)
     emang = np.degrees(np.arccos(cos_emang))
     pc_grid_lons = np.degrees(pc_grid_lons)
     pd_grid_lats = np.degrees(pd_grid_lats)
